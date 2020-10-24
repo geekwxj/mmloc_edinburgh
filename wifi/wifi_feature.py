@@ -37,12 +37,7 @@ class WifiRecord(object):
                 for file in files:
                     if file != '.DS_Store':
                         file = os.path.join(dir, file)
-                        f = os.listdir(file)
-                        for ff in f:
-                            if bool(1 - ff.startswith("ground_truth_")):
-                                f_id = os.path.join(file, ff)
-                                print("processing ", f_id)
-                                self.scan_wifi(f_id)
+                        self.scan_wifi(file)
 
     def generate_ordered_wifi(self):
         self.world_ordered_wifi = collections.OrderedDict(

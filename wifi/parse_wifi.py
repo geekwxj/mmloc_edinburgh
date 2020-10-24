@@ -22,7 +22,7 @@ def read_ap_to_dict(filename):
 wifi_filename = "wifi_id.txt"
 WIFI_DICT = read_ap_to_dict(wifi_filename)
 
-
+a=1
 # -----------------------------------------------------------------------------------------------
 
 
@@ -65,10 +65,13 @@ def parse_wifi(dir, f_id):
     # 读scenariu文件中的wifi
     dom = xml.dom.minidom.parse(f_id)
     root = dom.documentElement
+	
+    print(len(root.getElementsByTagName('a')))
+    print(len(root.getElementsByTagName('m')))
+    print(len(root.getElementsByTagName('g')))
     a_t = root.getElementsByTagName('a')[0].getAttribute("t")
     m_t = root.getElementsByTagName('m')[0].getAttribute("t")
-    g_t = root.getElementsByTagName('g')[0].getAttribute("t")
-    t0 = min(a_t, m_t, g_t)
+    t0 = min(a_t, m_t)
     wr_list = root.getElementsByTagName('wr')
     list_t_wifi = []
     for item, i in zip(wr_list, range(len(wr_list))):  # for each time step
@@ -92,7 +95,9 @@ def parse_wifi(dir, f_id):
 
     df = pd.DataFrame(list_t_wifi)
     df.columns = ['t', 'delta_t'] + ['ap' + str(i) for i in range(len(wifi_vector)-2)]
-    out_file = "Timed Data/Scenario_1" + "/scenario1-" + f_id[22] + "route.csv"
+    global a
+    out_file = "Timed Data/scenario_edin" + "/scenario1-" + str(a) + "route.csv"
+    a+=1
     if os.path.isfile(out_file):
         os.remove(out_file)
     df.to_csv(out_file)
@@ -107,7 +112,7 @@ def iterate(path):
             if os.path.isdir(f_id):
                 iterate(f_id)
             else:
-                if f_id.endswith(".xml") and bool(1 - dir.startswith("ground_truth_")):
+                if f_id.endswith(".xml"):
                     print("processing: " + f_id + "...")
                     parse_wifi(path, f_id)
         else:

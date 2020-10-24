@@ -15,11 +15,11 @@ over_lapping=90; "choose overlapping rate, which means how many datapoints are r
 
 for file_num in range (1,15):
     
-    rawfilepath='Smartisan/'+str(file_num)+'.xml'
-    timerfilepath='Smartisan/'+str(file_num)+'.csv'
-    overlap_data='Smartisan/'+str(file_num)+'_timestep'+str(cover_range)+'_overlap'+str(over_lapping)+'.csv'
+    rawfilepath='msbuilding/Route_'+str(file_num)+'/'+str(file_num)+'.xml'
+    timerfilepath='msbuilding/'+str(file_num)+'.csv'
+    overlap_data='msbuilding/'+str(file_num)+'_timestep'+str(cover_range)+'_overlap'+str(over_lapping)+'.csv'
     
-    rawdata='Smartisan/Converted/'+str(file_num)+'_converted.csv'
+    rawdata='msbuilding/Converted/'+str(file_num)+'_converted.csv'
     sensor_data='Smartisan/'+str(file_num)+'_timestep'+str(time_step)+'.csv'
     overlap_data='Smartisan/'+str(file_num)+'_timestep'+str(cover_range)+'_overlap'+str(over_lapping)+'.csv'
     
