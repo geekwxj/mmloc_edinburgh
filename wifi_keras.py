@@ -20,6 +20,9 @@ from keras.optimizers import Adam, RMSprop,SGD
 from keras.utils import plot_model
 from keras.callbacks import EarlyStopping, Callback, TensorBoard
 from data_functions import DownsampleDataset
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.svm import SVR,SVC
 
 np.random.seed(7)
 
@@ -28,14 +31,16 @@ wifi_input_size = 102
 hidden_size = 128
 output_dim = 2
 batch_size=100
-learning_rate = 0.005
-epoch=100
+learning_rate = 0.001
+epoch=2
 
-model_name = "wifi_edin"
+model_name = "wifi_edin_DNN"
 
 training=DownsampleDataset()
 WifiTrain=training.wifitrain
 locationlabel=training.labeltrain
+WifiVal=training.wifival
+locationval=training.labelval
 WifiTest=training.wifitest
 locationtest=training.labeltest
 
@@ -53,18 +58,24 @@ model.compile(optimizer=RMSprop(learning_rate),
                  loss='mse',metrics=['acc'])
 
 model.fit(WifiTrain, locationlabel,
-                       #validation_data=(WifiVal,locationval),
+                       validation_data=(WifiVal,locationval),
                        epochs=epoch, batch_size=batch_size, verbose=1,callbacks=[tensorboard]
                        #shuffle=False,
                        )
 
 #save model
 model.save("edinmodel/"+str(model_name)+".h5")
+
+
+#model = DecisionTreeRegressor()
+#model=KNeighborsRegressor()
+#model.fit(WifiTrain, locationlabel)
 fig1=plt.figure()
 fig=plt.figure()
 locPrediction = model.predict(WifiTest, batch_size=batch_size)
+#locPrediction = model.predict(WifiTest)
 aveLocPrediction = pf.get_ave_prediction(locPrediction, batch_size)
-data=pf.normalized_data_to_utm(np.hstack((locationtest, aveLocPrediction)))
+data=pf.normalized_data_to_utm(np.hstack((locationtest, locPrediction)))
 plt.plot(data[:,0],data[:,1],'b',data[:,2],data[:,3],'r')
 plt.legend(['target','prediction'],loc='upper right')
 plt.xlabel("x-latitude")

@@ -99,14 +99,14 @@ class DownsampleDataset(torch.utils.data.Dataset):
         self.transform=transform
         
         self.sensortrain,self.labeltrain,self.wifitrain=downsample_data(1,1,tw,slide)
-        for i in range(2,9):
+        for i in range(2,12):
             sensortrain,labeltrain,wifitrain=downsample_data(i, i, tw, slide)
             self.sensortrain=np.concatenate((self.sensortrain, sensortrain),axis=0)
             self.labeltrain=np.concatenate((self.labeltrain, labeltrain),axis=0)
             self.wifitrain=np.concatenate((self.wifitrain, wifitrain),axis=0)
 
         self.sensorval,self.labelval,self.wifival=downsample_data(8,8,tw,slide)
-        for i in range(9,14):
+        for i in range(12,14):
             sensorval,labelval,wifival=downsample_data(i, i, tw, slide)
             self.sensorval=np.concatenate((self.sensorval, sensorval),axis=0)
             self.labelval=np.concatenate((self.labelval, labelval),axis=0)
