@@ -21,7 +21,7 @@ def read_ap_to_dict(filename):
 
 wifi_filename = "wifi_id.txt"
 WIFI_DICT = read_ap_to_dict(wifi_filename)
-
+print("WIFI_DICT :",len(WIFI_DICT))
 a=1
 # -----------------------------------------------------------------------------------------------
 
@@ -96,7 +96,7 @@ def parse_wifi(dir, f_id):
     df = pd.DataFrame(list_t_wifi)
     df.columns = ['t', 'delta_t'] + ['ap' + str(i) for i in range(len(wifi_vector)-2)]
     global a
-    out_file = "Timed Data/scenario_edin" + "/scenario1-" + str(a) + "route.csv"
+    out_file = "scenario_edin" + "/scenario1-" + str(a) + "route.csv"
     a+=1
     if os.path.isfile(out_file):
         os.remove(out_file)

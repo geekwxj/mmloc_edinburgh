@@ -32,12 +32,8 @@ class WifiRecord(object):
         for dir in dirs:
             if dir != '.DS_Store':
                 dir = os.path.join(path, dir)
-                files = os.listdir(dir)
                 # 循环每个scenario下的8个文件夹
-                for file in files:
-                    if file != '.DS_Store':
-                        file = os.path.join(dir, file)
-                        self.scan_wifi(file)
+                self.scan_wifi(dir)
 
     def generate_ordered_wifi(self):
         self.world_ordered_wifi = collections.OrderedDict(
@@ -52,6 +48,6 @@ def write_ap_to_file(wr, filename):
     file.close()
 
 
-wifi_filename = "wifi_id.txt"
-wr1 = WifiRecord("Timed Data")
+wifi_filename = "wifi_id1.txt"
+wr1 = WifiRecord("Timed Data/")
 write_ap_to_file(wr1, wifi_filename)

@@ -8,6 +8,7 @@ from scipy import interpolate
 # import pandas as pd
 import pyproj
 import h5py
+import pandas as pd
 
 import matplotlib.pyplot as plt
 # from collections import Counter
@@ -32,7 +33,7 @@ NUM_COLUMNS = 1*102
 # 2. Read the distinct access point id from file("wifi_filename") into dictionary
 
 # ** VERSION 1 **: 102 dimensions(Xingji)/135 dimensions(Simon)
-wifi_filename = "../../Data/wifi_id1.txt"
+wifi_filename = "wifi_id1.txt"
 
 
 def read_ap_to_dict(filename):
@@ -130,12 +131,13 @@ class SensorFile(object):
     world_ap_dict = WIFI_DICT
     file_rank = 0
 
-    def __init__(self, file_name):
+    def __init__(self, file_name, i):
         SensorFile.file_rank += 1
         # Member variables
         self.wr_dict = collections.OrderedDict()
         self.loc_dict = collections.OrderedDict()
         self.fn = file_name
+        self.index = i
 
         # Transfer the data from raw file into internal data structure
         self.first_parse_file(file_name)
@@ -164,8 +166,8 @@ class SensorFile(object):
         self.f_inputs = normalize_wifi_inputs(wifi_array)
 
         # Save standard input and output into files
-        # self.save_overall_txt()
-        self.save_overall_hdf5()
+        self.save_overall_txt()
+        #self.save_overall_hdf5()
 
         # scatter plot(separately-类方法 / combined-公共方法)
         # self.plot()
@@ -250,14 +252,17 @@ class SensorFile(object):
 
     # write the overall standard input and output into a single "out_in_overall.txt" file
     def save_overall_txt(self):
-        txt_filename = "../../Data/out_in_accor_wifi_1.txt"
+        txt_filename = "Timed Data/out_in_accor_wifi_1.txt"
         write_text = np.hstack((self.f_outputs, self.f_inputs))
-        with open(txt_filename, "ab") as f:     # 以append的形式附加
-            np.savetxt(f, write_text, delimiter=",", newline='\n')
-
+        cs=['lat','lng']
+        for i in range(102):
+            cs.append('ap'+str(i))
+        df=pd.DataFrame(write_text,columns=cs)
+        df.to_csv("wifiloc/wifi"+str(self.index+1)+".csv",index=None)
+    
     # write the overall standard input and output into a single "out_in_overall.h5" file
     def save_overall_hdf5(self):
-        h5_filename = "../../Data/out_in_accor_wifi_1.h5"
+        h5_filename = "Timed Data/out_in_accor_wifi_1.h5"
         h5_file = h5py.File(h5_filename, mode='a')
         write_content = np.hstack((self.f_outputs, self.f_inputs))
         h5_file.create_dataset(os.path.basename(self.fn), data=write_content)
@@ -283,27 +288,9 @@ class SensorFile(object):
 # Iterate over all the background file in the directory "background"
 def iterate(path):
     dirs = os.listdir(path)
-    for dir in dirs:
-        if dir != ".DS_Store":
-            fi_d = os.path.join(path, dir)
-            if os.path.isdir(fi_d):
-                iterate(fi_d)
-            else:
-                SensorFile(fi_d)
-        else:
-            pass
+    for i,dir in enumerate(dirs):
+        fi_d = os.path.join(path, dir)
+        SensorFile(fi_d,i)
             # using "continue" here is the same as using "pass"
 
-
-# 1表示原始经纬度，2表示通过自己的方法(局部坐标系)标准化后的经纬度，范围是-1到1
-file1 = "../../Data/out_in_accor_wifi_1.h5"
-file2 = "../../Data/out_in_accor_wifi_1.txt"
-if os.path.isfile(file1):
-    os.remove(file1)
-if os.path.isfile(file2):
-    os.remove(file2)
-# fig = plt.figure()
-# plt.axis([-3.18781, -3.186580, 55.944630, 55.945100])
-iterate("../../Data/background")
-# plt.show()
-# fig.savefig("scatterPlot_all.png")
+iterate("Timed Data")
