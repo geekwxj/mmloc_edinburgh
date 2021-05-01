@@ -9,7 +9,7 @@ from scipy import interpolate
 import pyproj
 import h5py
 import pandas as pd
-
+import utm
 import matplotlib.pyplot as plt
 # from collections import Counter
 
@@ -131,7 +131,7 @@ class SensorFile(object):
     world_ap_dict = WIFI_DICT
     file_rank = 0
 
-    def __init__(self, file_name, i):
+    def __init__(self, file_path, file_name, i):
         SensorFile.file_rank += 1
         # Member variables
         self.wr_dict = collections.OrderedDict()
@@ -140,7 +140,7 @@ class SensorFile(object):
         self.index = i
 
         # Transfer the data from raw file into internal data structure
-        self.first_parse_file(file_name)
+        self.first_parse_file(file_path)
 
         # Filter out intermediate wifi according to the start and end location
         self.wr_t_list = self.filter_wifi()
@@ -167,11 +167,6 @@ class SensorFile(object):
 
         # Save standard input and output into files
         self.save_overall_txt()
-        #self.save_overall_hdf5()
-
-        # scatter plot(separately-类方法 / combined-公共方法)
-        # self.plot()
-        # plot(self.f_outputs)
 
         print("********************")
 
@@ -250,23 +245,18 @@ class SensorFile(object):
             element[ap_index] = ap_val
         return element
 
-    # write the overall standard input and output into a single "out_in_overall.txt" file
     def save_overall_txt(self):
-        txt_filename = "Timed Data/out_in_accor_wifi_1.txt"
         write_text = np.hstack((self.f_outputs, self.f_inputs))
+        zero=[488278.27,6199937.61]
+        ux=utm.from_latlon(write_text[:,0],write_text[:,1])[0]-zero[0]
+        uy=utm.from_latlon(write_text[:,0],write_text[:,1])[1]-zero[1]
+        write_text[:,0]=ux
+        write_text[:,1]=uy
         cs=['lat','lng']
         for i in range(102):
             cs.append('ap'+str(i))
         df=pd.DataFrame(write_text,columns=cs)
-        df.to_csv("wifiloc/wifi"+str(self.index+1)+".csv",index=None)
-    
-    # write the overall standard input and output into a single "out_in_overall.h5" file
-    def save_overall_hdf5(self):
-        h5_filename = "Timed Data/out_in_accor_wifi_1.h5"
-        h5_file = h5py.File(h5_filename, mode='a')
-        write_content = np.hstack((self.f_outputs, self.f_inputs))
-        h5_file.create_dataset(os.path.basename(self.fn), data=write_content)
-        h5_file.close()
+        df.to_csv("wifiloc/wifi"+self.fn+".csv",index=None)
 
     def plot(self):
         SensorFile.file_rank += 1
@@ -290,7 +280,7 @@ def iterate(path):
     dirs = os.listdir(path)
     for i,dir in enumerate(dirs):
         fi_d = os.path.join(path, dir)
-        SensorFile(fi_d,i)
+        SensorFile(fi_d,dir,i)
             # using "continue" here is the same as using "pass"
 
 iterate("Timed Data")
